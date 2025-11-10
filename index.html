@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğrenci Koçluğu Uygulaması</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    /* Ana sayfanın CSS'i */
+    body {
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7fa; 
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+    }
+    
+    /* Başlık Rengi Turuncu */
+    h1 { 
+      text-align: center; 
+      color: #FA770B; /* Turuncu */
+      margin-bottom: 30px; 
+      margin-top: 10px; 
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    
+    label { 
+      display: block; 
+      margin-top: 18px; 
+      margin-bottom: 8px; 
+      font-weight: 600; 
+      color: #333; 
+      font-size: 15px;
+    }
+    input[type="text"], textarea {
+      width: 100%; 
+      box-sizing: border-box; 
+      padding: 12px; 
+      border: 1px solid #ccd1e0; 
+      border-radius: 8px; 
+      font-size: 15px; 
+      font-family: 'Poppins', sans-serif;
+      resize: vertical; 
+      transition: all 0.3s;
+    }
+    input[type="text"]:focus, textarea:focus {
+      border-color: #1f3c88;
+      box-shadow: 0 0 8px rgba(31,60,136,0.2);
+      outline: none;
+    }
+    textarea { height: 60px; } 
+    .action-plan, .rating-container {
+      margin-top: 35px;
+      padding: 30px; 
+      background-color: #fcfdff; 
+      border-radius: 12px;
+      border-top: 4px solid #1f3c88; 
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .action-plan h2, .rating-container h2 { 
+      margin-top:0; 
+      color:#1f3c88; 
+      font-size:19px; 
+      font-weight:600;
+    }
+    .action-plan p, .rating-container p { 
+      font-size:14px; 
+      color:#555; 
+      margin-top:0; 
+      margin-bottom:15px; 
+    }
+    .action-plan textarea { 
+      margin-top: 10px; 
+      margin-bottom: 10px; 
+    }
+    .rating-item { margin-bottom: 15px; } 
+    .rating-item label { 
+      display: block; 
+      margin-bottom: 8px; 
+      font-weight: 600; 
+      color: #444; 
+    }
+    .rating-item input[type="range"] {
+      width: 100%; 
+      -webkit-appearance: none; 
+      height: 10px; 
+      border-radius: 5px; 
+      background: #eee;
+      outline: none;
+      transition: background 0.3s;
+    }
+    .rating-item input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; 
+      appearance: none; 
+      width: 22px; 
+      height: 22px; 
+      border-radius: 50%; 
+      background: #1f3c88; 
+      cursor: pointer; 
+      border: 3px solid #fff; 
+      margin-top: -6px; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+      transition: background 0.3s;
+    }
+    .rating-value { 
+      text-align: right; 
+      font-size: 15px; 
+      color: #1f3c88; 
+      margin-top: 6px; 
+      font-weight: 600; 
+    }
+    .average-score-container {
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      margin-top: 25px;
+      border-top: 1px solid #eee; 
+      padding-top: 20px;
+    }
+    .average-score { 
+      font-size: 14px; 
+      color: #333; 
+      font-weight: 600;
+    }
+    button { 
+      padding: 10px 20px; 
+      border: none; 
+      background-color: #1f3c88; 
+      color: white;
+      font-weight: 600;
+      border-radius: 8px; 
+      cursor: pointer; 
+      transition: all 0.3s;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(31,60,136,0.2); 
+    }
+    button:hover { 
+      background-color: #3559a0; 
+      box-shadow: 0 6px 15px rgba(31,60,136,0.3);
+      transform: translateY(-2px); 
+    }
+    .info-box {
+      background-color: #f7f9ff;
+      border: 1px solid #ccd1e0;
+      border-left: 5px solid #1f3c88;
+      color: #333;
+      text-align: left;
+      font-size: 14px;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .info-box p {
+      margin: 10px 0;
+    }
+    .info-box span {
+      font-size: 1.4em;
+      color: #1f3c88; 
+      margin-right: 5px;
+      vertical-align: -2px;
+    }
+    /* Rapor Butonu (Turuncu) */
+    #generateReport {
+      background-color: #FA770B; 
+      box-shadow: 0 4px 12px rgba(250, 119, 11, 0.2);
+    }
+    #generateReport:hover {
+      background-color: #e66c0a;
+      box-shadow: 0 6px 15px rgba(250, 119, 11, 0.3);
+    }
+    
+    /* Grafik Rapor Butonu (Koyu Yeşil) */
+    #generateChartReport {
+      background-color: #388E3C; 
+      box-shadow: 0 4px 12px rgba(56, 142, 60, 0.2);
+    }
+    #generateChartReport:hover {
+      background-color: #2E7D32; 
+      box-shadow: 0 6px 15px rgba(56, 142, 60, 0.3);
+    }
+    
+    /* Buton Konteyner Stili (Sola ve Sağa Yaslı) */
+    .button-container {
+      display: flex;
+      justify-content: space-between; 
+      align-items: center; 
+      gap: 20px; 
+      margin-top: 40px;
+      flex-wrap: wrap; 
+    }
+    
+    /* Rapor butonlarını gruplamak için sarmalayıcı */
+    .report-buttons-wrapper {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    /* Formu Sıfırla Butonu (Koyu Gri) */
+    #resetForm {
+       background-color: #555; /* Koyu Gri */
+       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #resetForm:hover {
+       background-color: #444; /* Daha Koyu Gri */
+       box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+    
+    /* Grup Temizleme Butonları (Kırmızı) */
+    .btn-temizle-grup {
+        background-color: #D9534F; /* Soluk Kırmızı */
+        box-shadow: 0 4px 12px rgba(217, 83, 79, 0.2);
+    }
+    .btn-temizle-grup:hover {
+        background-color: #C9302C; /* Koyu Kırmızı */
+        box-shadow: 0 6px 15px rgba(217, 83, 79, 0.3);
+    }
+    
+    
+    footer {
+      background-color: #20263e;
+      text-align: center;
+      padding: 20px;
+      border-radius: 0 0 12px 12px; 
+      margin: 40px -40px -40px -40px; 
+    }
+    footer p {
+      color: #eee; 
+      font-size: 12px; 
+      margin: 8px 0;
+    }
+    footer a {
+      color: #ccc;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    footer a:hover { color: #fff; }
+
+    @media (max-width: 600px) {
+      /* ... (Diğer mobil stiller aynı) ... */
+      
+      button {
+        width: auto; 
+        flex-grow: 1; 
+        padding: 12px; 
+        font-size: 15px;
+      }
+      .button-container {
+        gap: 10px;
+        justify-content: center;
+      }
+      .average-score-container button {
+        width: 100%; 
+      }
+      body { padding: 0; }
+      .container { padding: 20px; margin: 0; border-radius: 0; box-shadow: none; }
+      h1 { font-size: 22px; }
+      label { font-size: 14px; }
+      input[type="text"], textarea { width: 100%; font-size: 14px; padding: 12px; }
+      .action-plan, .rating-container { padding: 20px; }
+      .action-plan h2, .rating-container h2 { font-size: 17px; }
+      .rating-value { font-size: 14px; }
+      .average-score-container { flex-direction: column; gap: 15px; align-items: stretch; }
+      footer { margin: 20px 0 0 0; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Öğrenci Koçluğu <br>Motivasyon Değerlendirme Formu</h1>
+    <div class="info-box">
+      <p><span>ⓘ</span> Bu araç, öğrenci koçluğu uygulamalarında danışman öğretmene öğrenci motivasyonuna dair fikir verebilmek amacıyla hazırlanmıştır. Tasarım aşamasında "başarı çemberi" uygulamasından ilham alınmıştır.</p>
+      <p><span>ⓘ</span> Derecelendirmede 0 en düşük, 10 en yüksek puanı temsil etmektedir. Rapor oluşturma ekranında bu veriler otomatik olarak alınır ve öğrenciye özel rapor oluşturulur.</p>
+      <p><span>ⓘ</span> Girilen veriler herhangi bir sunucuda depolanmamaktadır. Sayfa yenilendiği takdirde bu veriler formdan temizlenir. Tarayıcınızın ayarlarına bağlı olarak bazı form verileri çerezlerde (cookies) kalabilir. Tarayıcı çerezlerini ve geçmişini temizlediğinizde bunlar da kaybolacaktır. Rapor oluşturma sayfası ise bilgilerin genel özetini ve basit istatistiğini gösterir.</p>
+      <p><span>ⓘ</span> Kullanıcı dilerse Ctrl+P tuş kombinasyonunu kullanarak rapor sayfasını yazdırabilir. Rapor oluşturma butonu, bu sayfanın sonunda yer almaktadır.</p>
+      <p><span>ⓘ</span> Kodlama HTML, CSS ve JS ile yapılmıştır. Yapım aşamasında kısmen AI desteği alınmıştır. Geliştirmeye açıktır.</p>
+    </div>
+    <label for="name">Öğrenci Adı Soyadı:</label>
+    <input type="text" id="name" placeholder="Ad ve soyadınızı yazın..">
+    <label for="class">Sınıfınız:</label>
+    <input type="text" id="class" placeholder="Sınıfınızı yazın..">
+    <label for="goal">Hedefiniz:</label>
+    <textarea id="goal" placeholder="Hedefinizi buraya bir cümle ile yazın.."></textarea>
+    <div class="action-plan">
+      <h2>Hedefime Ulaşmak İçin Yapacaklarım: Eylem Planım</h2>
+      <p>Hedefinize ulaşmak için atacağınız adımları kısaca birer cümle ile yazın.</p>
+      <textarea id="eylem1" placeholder="1. eylem"></textarea>
+      <textarea id="eylem2" placeholder="2. eylem"></textarea>
+      <textarea id="eylem3" placeholder="3. eylem"></textarea>
+    </div>
+    <div class="rating-container">
+      <h2>Duygu/Özellik Derecelendirmesi</h2>
+      <p>Her bir özelliği 0-10 arasında derecelendirerek kendi durumunuzu gözlemleyin.</p>
+      <div class="rating-item"><label for="motivasyon">Motivasyon</label><input type="range" min="0" max="10" value="0" id="motivasyon" oninput="updateAll()"><div class="rating-value" id="motivasyonValue">0</div></div>
+      <div class="rating-item"><label for="ozguven">Özgüven</label><input type="range" min="0" max="10" value="0" id="ozguven" oninput="updateAll()"><div class="rating-value" id="ozguvenValue">0</div></div>
+      <div class="rating-item"><label for="zaman">Zamanı Etkin Kullanma</label><input type="range" min="0" max="10" value="0" id="zaman" oninput="updateAll()"><div class="rating-value" id="zamanValue">0</div></div>
+      <div class="rating-item"><label for="olumlu">Olumlu Düşünme</label><input type="range" min="0" max="10" value="0" id="olumlu" oninput="updateAll()"><div class="rating-value" id="olumluValue">0</div></div>
+      <div class="rating-item"><label for="kendine">Kendine İnanma</label><input type="range" min="0" max="10" value="0" id="kendine" oninput="updateAll()"><div class="rating-value" id="kendineValue">0</div></div>
+      <div class="rating-item"><label for="verimli">Verimli Çalışma</label><input type="range" min="0" max="10" value="0" id="verimli" oninput="updateAll()"><div class="rating-value" id="verimliValue">0</div></div>
+      <div class="rating-item"><label for="duygu">Duygu Kontrolü</label><input type="range" min="0" max="10" value="0" id="duygu" oninput="updateAll()"><div class="rating-value" id="duyguValue">0</div></div>
+      <div class="rating-item"><label for="kaygi">Kaygı Kontrolü</label><input type="range" min="0" max="10" value="0" id="kaygi" oninput="updateAll()"><div class="rating-value" id="kaygiValue">0</div></div>
+      <div class="average-score-container">
+        <button id="resetBtn" class="btn-temizle-grup">Bölümü Temizle</button>
+        <div class="average-score" id="averageScore">Ortalama Duygu: 0</div>
+      </div>
+    </div>
+    
+    <div class="rating-container">
+       <h2>Memnuniyet Derecelendirmesi</h2>
+      <p>Her bir alanı 0-10 arasında derecelendirerek kendi durumunuzu gözlemleyin.</p>
+      <div class="rating-item"><label for="mem1">Okul</label><input type="range" min="0" max="10" value="0" id="mem1" class="memRange" oninput="updateMem()"><div class="rating-value" id="mem1Value">0</div></div>
+      <div class="rating-item"><label for="mem2">Aile</label><input type="range" min="0" max="10" value="0" id="mem2" class="memRange" oninput="updateMem()"><div class="rating-value" id="mem2Value">0</div></div>
+      <div class="rating-item"><label for="mem3">Sosyal Hayat</label><input type="range" min="0" max="10" value="0" id="mem3" class="memRange" oninput="updateMem()"><div class="rating-value" id="mem3Value">0</div></div>
+      <div class="rating-item"><label for="mem4">Sağlık</label><input type="range" min="0" max="10" value="0" id="mem4" class="memRange" oninput="updateMem()"><div class="rating-value" id="mem4Value">0</div></div>
+      <div class="rating-item"><label for="mem5">Arkadaşlar</label><input type="range" min="0" max="10" value="0" id="mem5" class="memRange" oninput="updateMem()"><div class="rating-value" id="mem5Value">0</div></div>
+      <div class="rating-item"><label for="mem6">Hobiler</label><input type="range" min="0" max="10" value="0" id="mem6" class="memRange" oninput="updateMem()"><div class="rating-value" id="mem6Value">0</div></div>
+      <div class="rating-item"><label for="mem7">Dersler</label><input type="range" min="0" max="10" value="0" id="mem7" class="memRange" oninput="updateMem()"><div class="rating-value" id="mem7Value">0</div></div>
+      <div class="rating-item"><label for="mem8">Kişisel Memnuniyet</label><input type="range" min="0" max="10" value="0" id="mem8" class="memRange" oninput="updateMem()"><div class="rating-value" id="mem8Value">0</div></div>
+      <div class="average-score-container">
+        <button class="resetBtnMemnuniyet btn-temizle-grup">Bölümü Temizle</button>
+        <div class="average-score" id="memAverage">Ortalama Memnuniyet: 0</div>
+      </div>
+    </div>
+    
+    <div class="rating-container">
+      <h2>Derse Karşı İlgi Derecelendirmesi</h2>
+      <p>Her bir derse karşı ilginizi 0-10 arasında derecelendirerek kendi durumunuzu gözlemleyin.</p>
+      <div class="rating-item"><label for="ders1">Türkçe</label><input type="range" min="0" max="10" value="0" id="ders1" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders1Value">0</div></div>
+      <div class="rating-item"><label for="ders2">Matematik</label><input type="range" min="0" max="10" value="0" id="ders2" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders2Value">0</div></div>
+      <div class="rating-item"><label for="ders3">Fen Bilimleri</label><input type="range" min="0" max="10" value="0" id="ders3" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders3Value">0</div></div>
+      <div class="rating-item"><label for="ders4">Sosyal Bilgiler (İnk)</label><input type="range" min="0" max="10" value="0" id="ders4" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders4Value">0</div></div>
+      <div class="rating-item"><label for="ders5">Din Kültürü ve Ahlak Bilgisi</label><input type="range" min="0" max="10" value="0" id="ders5" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders5Value">0</div></div>
+      <div class="rating-item"><label for="ders6">İngilizce</label><input type="range" min="0" max="10" value="0" id="ders6" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders6Value">0</div></div>
+      <div class="rating-item"><label for="ders7">Görsel Sanatlar</label><input type="range" min="0" max="10" value="0" id="ders7" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders7Value">0</div></div>
+      <div class="rating-item"><label for="ders8">Müzik</label><input type="range" min="0" max="10" value="0" id="ders8" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders8Value">0</div></div>
+      <div class="rating-item"><label for="ders9">Beden Eğitimi</label><input type="range" min="0" max="10" value="0" id="ders9" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders9Value">0</div></div>
+      <div class="rating-item"><label for="ders10">Teknoloji ve Tasarım</label><input type="range" min="0" max="10" value="0" id="ders10" class="dersRange" oninput="updateDers()"><div class="rating-value" id="ders10Value">0</div></div>
+      <div class="average-score-container">
+        <button class="resetBtnDers btn-temizle-grup">Bölümü Temizle</button>
+        <div class="average-score" id="dersAverage">Ortalama İlgi: 0</div>
+      </div>
+    </div>
+    
+    <div class="rating-container">
+      <h2>Beceri Derecelendirmesi</h2>
+      <p>Belirtilen alanlara dair kendinizi ne kadar beceri sahibi gördüğünüzü 0-10 arasında derecelendirin.</p>
+      <div class="rating-item"><label for="beceri1">Bilgisayar Kullanımı</label><input type="range" min="0" max="10" value="0" id="beceri1" class="beceriRange" oninput="updateBeceri()"><div class="rating-value" id="beceri1Value">0</div></div>
+      <div class="rating-item"><label for="beceri2">İletişim</label><input type="range" min="0" max="10" value="0" id="beceri2" class="beceriRange" oninput="updateBeceri()"><div class="rating-value" id="beceri2Value">0</div></div>
+      <div class="rating-item"><label for="beceri3">Grupla Çalışma</label><input type="range" min="0" max="10" value="0" id="beceri3" class="beceriRange" oninput="updateBeceri()"><div class="rating-value" id="beceri3Value">0</div></div>
+      <div class="rating-item"><label for="beceri4">Planlama</label><input type="range" min="0" max="10" value="0" id="beceri4" class="beceriRange" oninput="updateBeceri()"><div class="rating-value" id="beceri4Value">0</div></div>
+      <div class="rating-item"><label for="beceri5">Yazma</label><input type="range" min="0" max="10" value="0" id="beceri5" class="beceriRange" oninput="updateBeceri()"><div class="rating-value" id="beceri5Value">0</div></div>
+      <div class="rating-item"><label for="beceri6">Yaratıcılık</label><input type="range" min="0" max="10" value="0" id="beceri6" class="beceriRange" oninput="updateBeceri()"><div class="rating-value" id="beceri6Value">0</div></div>
+      <div class="rating-item"><label for="beceri7">Zamanlama</label><input type="range" min="0" max="10" value="0" id="beceri7" class="beceriRange" oninput="updateBeceri()"><div class="rating-value" id="beceri7Value">0</div></div>
+      <div class="rating-item"><label for="beceri8">Duyguları Kontrol Etme</label><input type="range" min="0" max="10" value="0" id="beceri8" class="beceriRange" oninput="updateBeceri()"><div class="rating-value" id="beceri8Value">0</div></div>
+      <div class="average-score-container">
+        <button class="resetBtnBeceri btn-temizle-grup">Bölümü Temizle</button>
+        <div class="average-score" id="beceriAverage">Ortalama Beceri: 0</div>
+      </div>
+    </div>
+
+    <div class="button-container">
+      <button id="resetForm">Tüm Formu Sıfırla</button>
+      
+      <div class="report-buttons-wrapper">
+        <button id="generateReport">Yazılı Rapor Oluştur</button>
+        <button id="generateChartReport">Grafik Rapor Oluştur</button>
+      </div>
+    </div>
+  
+    <footer style="background-color: #20263e; text-align: center; padding: 20px 0; border-radius: 8px; margin-top: 40px;">
+        <p style="color: #eee; font-size: 12px; margin: 5px 0;">
+           <span style="color: #F0EBA9; font-size: 13px;"><b> &copy;2025 Hibrahimaksakal</b></span> <br>HTML, CSS ve JS ile kodlanmıştır. Geliştirmek isteyenler için kaynak kodlar kullanıma açıktır.
+        </p>
+        <p style="font-size: 12px; margin: 5px 0;">
+            <a href="https://hibrahimaksakal.blogspot.com/" style="color: #ccc; text-decoration: none;" target="_blank">İletişim  |  </a> 
+            <a href="#" style="color: #ccc; text-decoration: none;">Gizlilik bilgilendirmesi sayfa başında yapılmıştır.</a>
+        </p>
+    </footer> 
+  </div> <script>
+// --- JavaScript Bölümü (Hatalar Düzeltildi) ---
+
+const sliders = ['motivasyon','ozguven','zaman','olumlu','kendine','verimli','duygu','kaygi'];
+const memSliders = ['mem1','mem2','mem3','mem4','mem5','mem6','mem7','mem8'];
+// *** ANA HATA DÜZELTİLDİ: 'dersders8' -> 'ders8' (tırnaklar eklendi) ***
+const dersSliders = ['ders1','ders2','ders3','ders4','ders5','ders6','ders7','ders8','ders9','ders10'];
+const beceriSliders = ['beceri1','beceri2','beceri3','beceri4','beceri5','beceri6','beceri7','beceri8'];
+
+// Rapor etiketleri global
+const duygularNames = ['Motivasyon','Özgüven','Zamanı Etkin Kullanma','Olumlu Düşünme','Kendine İnanma','Verimli Çalışma','Duygu Kontrolü','Kaygı Kontrolü'];
+const memNames = ['Okul','Aile','Sosyal Hayat','Sağlık','Arkadaşlar','Kişisel Memnuniyet','Dersler','Hobiler'];
+const dersNames = ['Türkçe','Matematik','Fen Bilimleri','Sosyal Bilgiler (İnk)','Din Kültürü ve Ahlak Bilgisi','İngilizce','Görsel Sanatlar','Müzik','Beden Eğitimi','Teknoloji ve Tasarım'];
+const beceriNames = ['Bilgisayar Kullanımı','İletişim','Grupla Çalışma','Planlama','Yazma','Yaratıcılık','Zamanlama','Duyguları Kontrol Etme'];
+
+const highlightGradient = (value) => {
+  const val = Math.min(parseInt(value) || 0, 10);
+  const percent = val * 10;
+  return `linear-gradient(to right, #a8d0e6 0%, #1f3c88 ${percent}%, #eee ${percent}%, #eee 100%)`;
+};
+
+// Puanı güvenli bir şekilde almak için yardımcı fonksiyon
+const parseVal = (id) => {
+    const element = document.getElementById(id);
+    if (!element) {
+        console.error("Hata: " + id + " ID'li element bulunamadı.");
+        return 0; 
+    }
+    const val = parseInt(element.value);
+    // Kaydırıcı max değeri 10'dan büyükse (HTML hatası varsa) 10'a sınırla
+    if (val > 10) return 10;
+    return isNaN(val) ? 0 : val;
+};
+
+// ... (updateAll, updateMem, updateDers, updateBeceri fonksiyonları) ...
+function updateAll() {
+  let total=0;
+  sliders.forEach(id=>{
+    const s=document.getElementById(id);
+    const val = parseVal(id); 
+    document.getElementById(id+'Value').innerText = val;
+    total+= val;
+    s.style.background = highlightGradient(val);
+  });
+  document.getElementById('averageScore').innerText=`Ortalama Duygu: ${(total/sliders.length).toFixed(1)}`;
+}
+function updateMem() {
+  let total=0;
+  memSliders.forEach(id=>{
+    const s=document.getElementById(id);
+    const val = parseVal(id); 
+    document.getElementById(id+'Value').innerText = val;
+    total+= val;
+    s.style.background = highlightGradient(val);
+  });
+  document.getElementById('memAverage').innerText=`Ortalama Memnuniyet: ${(total/memSliders.length).toFixed(1)}`;
+}
+function updateDers() {
+  let total=0;
+  dersSliders.forEach(id=>{
+    const s=document.getElementById(id);
+    if (!s) return; // Güvenlik kontrolü
+    const val = parseVal(id); 
+    document.getElementById(id+'Value').innerText = val;
+    total+= val;
+    s.style.background = highlightGradient(val);
+  });
+  document.getElementById('dersAverage').innerText=`Ortalama İlgi: ${(total/dersSliders.length).toFixed(1)}`;
+}
+function updateBeceri() {
+  let total=0;
+  beceriSliders.forEach(id=>{
+    const s=document.getElementById(id);
+    const val = parseVal(id); 
+    document.getElementById(id+'Value').innerText = val;
+    total+= val;
+    s.style.background = highlightGradient(val);
+  });
+  document.getElementById('beceriAverage').innerText=`Ortalama Beceri: ${(total/beceriSliders.length).toFixed(1)}`;
+}
+
+// ... (resetSlider ve 'click' eventleri) ...
+function resetSlider(sliderId) {
+    const s = document.getElementById(sliderId);
+    if (!s) return; 
+    s.value = 0;
+    s.style.background = '#eee'; 
+    
+    // Resetledikten sonra ortalamaları da güncelle
+    if (sliders.includes(sliderId)) updateAll();
+    if (memSliders.includes(sliderId)) updateMem();
+    if (dersSliders.includes(sliderId)) updateDers();
+    if (beceriSliders.includes(sliderId)) updateBeceri();
+}
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  sliders.forEach(resetSlider);
+});
+document.querySelector('.resetBtnMemnuniyet').addEventListener('click',()=>{
+  memSliders.forEach(resetSlider);
+});
+document.querySelector('.resetBtnDers').addEventListener('click',()=>{
+  dersSliders.forEach(resetSlider);
+});
+document.querySelector('.resetBtnBeceri').addEventListener('click',()=>{
+  beceriSliders.forEach(resetSlider);
+});
+
+
+// Standart Rapor oluştur
+document.getElementById('generateReport').addEventListener('click',()=>{
+  const name = document.getElementById('name').value;
+  const cls = document.getElementById('class').value;
+  const goal = document.getElementById('goal').value;
+  const eylemler=[document.getElementById('eylem1').value, document.getElementById('eylem2').value, document.getElementById('eylem3').value];
+  function avg(arr){return (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1);}
+  function max(arr){return Math.max(...arr);}
+  function min(arr){return Math.min(...arr);}
+  const duygular = sliders.map(parseVal);
+  const memnuniyet = memSliders.map(parseVal);
+  const ders = dersSliders.map(parseVal);
+  const beceri = beceriSliders.map(parseVal);
+  const bugun = new Date();
+  const tarih = bugun.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const reportWin = window.open('', '_blank');
+  if(!reportWin) { alert('Tarayıcı pop-up engelleyicisi etkin, rapor açılamıyor.'); return; }
+  const htmlContent = `
+<html>
+<head>
+<title>Öğrenci Raporu</title>
+<style>
+body { font-family:sans-serif; background:#eef2f7; padding:28px; margin:0;}
+.grid-container { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; width:100%; height:92vh; }
+.container { background:#fff; padding:10px; border-radius:0px; display:flex; flex-direction:column; overflow:auto; }
+.split-container { display:flex; height:100%; gap:10px; }
+.left, .right { flex:1; padding:8px; border-radius:0px; background:#fff; }
+h2 {color:#1f3c88; margin-top:0; font-size:16px;}
+div {margin-bottom:6px; font-size:13px; color:#333;}
+.report-title { text-align:left; color:FA0000; font-size:10pt; font-weight: bold; margin-bottom:10px; }
+</style>
+</head>
+<body>
+<div class="grid-container">
+  <div class="container">
+  <div class="report-title">■ ÖĞRENCİ KOÇLUĞU MOTİVASYON DEĞERLENDİRME RAPORU</div>
+    <h2>Öğrenci Bilgileri ve Hedef/Eylem Planı</h2>
+    <div><span style="font-weight: bold;">Ad Soyad:</span> ${name}</div>
+    <div><span style="font-weight: bold;">Sınıf:</span> ${cls}</div>
+    <div><span style="font-weight: bold;">Hedef:</span> ${goal}</div>
+    <br>
+    <div><strong>Eylem Planı:</strong></div>
+    <div>1. ${eylemler[0]}</div>
+    <div>2. ${eylemler[1]}</div>
+    <div>3. ${eylemler[2]}</div>
+  </div>
+  <div class="container">
+    <h2>Duygu/Özellik Derecelendirmesi</h2>
+    <div class="split-container">
+      <div class="left">
+        ${duygularNames.map((name,i)=>`<div>${name}: ${duygular[i]}</div>`).join('')}
+      </div>
+      <div class="right">
+        <strong>Ortalama:</strong> ${avg(duygular)}<br>
+        <strong>En Yüksek:</strong> ${max(duygular)}<br>
+        <strong>En Düşük:</strong> ${min(duygular)}
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <h2>Memnuniyet Derecelendirmesi</h2>
+    <div class="split-container">
+      <div class="left">
+        ${memNames.map((name,i)=>`<div>${name}: ${memnuniyet[i]}</div>`).join('')}
+      </div>
+      <div class="right">
+        <strong>Ortalama:</strong> ${avg(memnuniyet)}<br>
+        <strong>En Yüksek:</strong> ${max(memnuniyet)}<br>
+        <strong>En Düşük:</strong> ${min(memnuniyet)}
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <h2>Derse Karşı İlgi Derecelendirmesi</h2>
+    <div class="split-container">
+      <div class="left">
+        ${dersNames.map((name,i)=>`<div>${name}: ${ders[i]}</div>`).join('')}
+      </div>
+      <div class="right">
+        <strong>Ortalama:</strong> ${avg(ders)}<br>
+        <strong>En Yüksek:</strong> ${max(ders)}<br>
+        <strong>En Düşük:</strong> ${min(ders)}
+      </div>
+    </div>
+  </div>
+<div class="container">
+    <h2>Beceri Algısı Derecelendirmesi</h2>
+    <div class="split-container">
+      <div class="left">
+        ${beceriNames.map((name,i)=>`<div>${name}: ${beceri[i]}</div>`).join('')}
+      </div>
+      <div class="right">
+        <strong>Ortalama:</strong> ${avg(beceri)}<br>
+        <strong>En Yüksek:</strong> ${max(beceri)}<br>
+        <strong>En Düşük:</strong> ${min(beceri)}
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <h2>Öğretmen Değerlendirmesi</h2>
+    <p style="font-size: 11px; color: #FC0000;">Öğrenciyle ilgili genel değerlendirmenizi ve varsa birlikte yaptığınız planı not ediniz. Sayfayı yazdırmak için Ctrl+P tuşlarına basınız.</p>
+    <div class="split-container">
+      <div class="right"></div>
+      <div class="right">
+        <strong>Değerlendirme Tarihi:</strong> ${tarih}</span><br><br>
+        <strong>Öğretmen Adı-Soyadı</strong> <br><br><br><br>
+        <strong>İmzası</strong> 
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+`;
+  reportWin.document.write(htmlContent);
+  reportWin.document.close();
+});
+
+
+// --- Grafik Raporu Fonksiyonu (Stabil sürüm, stepSize: 1, legend hilesi, zoom) ---
+document.getElementById('generateChartReport').addEventListener('click', () => {
+  // 1. Verileri Topla
+  const name = document.getElementById('name').value;
+  const cls = document.getElementById('class').value;
+  const goal = document.getElementById('goal').value;
+  const eylemler = [document.getElementById('eylem1').value, document.getElementById('eylem2').value, document.getElementById('eylem3').value];
+
+  // Güvenli puan alımı
+  const duygular = sliders.map(parseVal);
+  const memnuniyet = memSliders.map(parseVal);
+  const ders = dersSliders.map(parseVal);
+  const beceri = beceriSliders.map(parseVal);
+
+  const bugun = new Date();
+  const tarih = bugun.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  // 2. Yeni Pencere Aç
+  const chartWin = window.open('', '_blank');
+  if (!chartWin) {
+    alert('Tarayıcı pop-up engelleyicisi etkin, grafik raporu açılamıyor.');
+    return;
+  }
+
+  // 3. Yeni Pencere için HTML İçeriği Oluştur
+  const htmlContent = `
+    <html>
+    <head>
+      <title>Grafik Raporu - ${name}</title>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+      
+      <style>
+        /* Stabil Sürümün CSS'i (14. adımdaki) */
+        body { font-family: 'Poppins', sans-serif; background: #f4f7fa; padding: 20px; color: #333; }
+        h1 { color: #1f3c88; text-align: center; }
+        h2 { color: #1f3c88; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-top: 0; }
+        
+        /* Grafik başlığı altındaki boşluk azaltıldı (19. adımdan) */
+        .chart-container h2 {
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .info-container { 
+          display: flex; 
+          flex-wrap: wrap;
+          gap: 25px; 
+          background: #fff; 
+          padding: 25px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+          margin-bottom: 30px; 
+          border-top: 4px solid #1f3c88; 
+          font-size: 14px; 
+        }
+        .info-container div { margin-bottom: 6px; }
+        .left-column, .right-column {
+          flex: 1; 
+          min-width: 300px; 
+        }
+        .right-column {
+          background: #fcfdff;
+          padding: 20px;
+          border-radius: 8px;
+          border: 1px solid #f0f0f0;
+          display: flex;
+          flex-direction: column;
+          font-size: 13px; 
+        }
+        .note-area-label {
+          font-size: 12px;
+          color: #555;
+          margin-bottom: 5px;
+        }
+        .note-area {
+          border: 1px dashed #ccc;
+          border-radius: 8px;
+          min-height: 100px; 
+          padding: 10px;
+          flex-grow: 1; 
+          margin-bottom: 15px; 
+        }
+        .signature-field {
+          margin-top: 15px; 
+          padding-bottom: 5px;
+          height: 15px; 
+          font-weight: 600;
+        }
+        .signature-line {
+          border-bottom: 1px solid #ccc; 
+          height: 20px;
+        }
+        .chart-grid { 
+          display: grid; 
+          grid-template-columns: 1fr 1fr; 
+          gap: 20px; 
+        }
+        .chart-container { 
+          background: #fff; 
+          padding: 15px;
+          border-radius: 12px; 
+          box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+          position: relative;
+        }
+        @media (max-width: 900px) { 
+          .chart-grid { grid-template-columns: 1fr; } 
+        }
+        
+        /* Yazdırma Stilleri (@zoom eklendi) (20. adımdan) */
+        @media print {
+          body { 
+              background: #fff; 
+              padding: 0; 
+              font-size: 9pt; 
+              zoom: 0.8; /* Otomatik %80 ölçeklendirme */
+          }
+          h1, h2 { color: #000; }
+          .info-container { 
+              flex-wrap: nowrap; 
+              box-shadow: none; 
+              border: 1px solid #ccc; 
+              font-size: 9pt;
+              padding: 15px;
+          }
+          .right-column { background: #fff; border: 1px solid #eee; font-size: 9pt; padding: 10px; }
+          
+          .chart-container h2 {
+              padding-bottom: 2px;
+              margin-bottom: 2px;
+          }
+          
+          .chart-grid { 
+              grid-template-columns: 1fr 1fr; 
+              gap: 10px; 
+          }
+          .chart-container { 
+              box-shadow: none; 
+              border: 1px solid #ccc; 
+              page-break-inside: avoid; 
+              padding: 10px;
+          }
+          .note-area { min-height: 100px; }
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Öğrenci Grafik Değerlendirme Raporu</h1>
+      
+      <div class="info-container">
+        <div class="left-column">
+          <h2>Öğrenci Bilgileri</h2>
+          <div><strong>Ad Soyad:</strong> ${name || 'Belirtilmemiş'}</div>
+          <div><strong>Sınıf:</strong> ${cls || 'Belirtilmemiş'}</div>
+          <div><strong>Hedef:</strong> ${goal || 'Belirtilmemiş'}</div>
+          <br>
+          <div><strong>Eylem Planı:</strong></div>
+          <div>1. ${eylemler[0] || '-'}</div>
+          <div>2. ${eylemler[1] || '-'}</div>
+          <div>3. ${eylemler[2] || '-'}</div>
+        </div>
+        
+        <div class="right-column">
+          <h2>Öğretmen Değerlendirmesi</h2>
+          <p class="note-area-label">Öğrenciyle ilgili genel değerlendirme ve plan notları:</p>
+          <div class="note-area"></div>
+          <div><strong>Değerlendirme Tarihi:</strong> ${tarih}</div>
+          <div class="signature-field">
+            Öğretmen Adı-Soyadı:
+            <div class="signature-line"></div>
+          </div>
+          <div class="signature-field">
+            İmzası:
+            <div class="signature-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-container">
+          <h2>Duygu/Özellik Derecelendirmesi</h2>
+          <canvas id="duyguChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h2>Memnuniyet Derecelendirmesi</h2>
+          <canvas id="memChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h2>Derse Karşı İlgi Derecelendirmesi</h2>
+          <canvas id="dersChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h2>Beceri Derecelendirmesi</h2>
+          <canvas id="beceriChart"></canvas>
+        </div>
+      </div>
+
+      <script>
+        function createRadarChart(canvasId, chartLabels, dataValues, label) {
+          const ctx = document.getElementById(canvasId).getContext('2d');
+          new Chart(ctx, {
+            type: 'radar',
+            data: {
+              labels: chartLabels,
+              datasets: [{
+                label: label,
+                data: dataValues,
+                fill: true, /* Alan taraması (fill) burada */
+                backgroundColor: 'rgba(31, 60, 136, 0.2)',
+                borderColor: 'rgb(31, 60, 136)',
+                pointBackgroundColor: 'rgb(31, 60, 136)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(31, 60, 136)'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true, 
+              
+              /* Üst boşluğu kaldır (19. adımdan) */
+              layout: {
+                  padding: {
+                      top: 0
+                  }
+              },
+              
+              scales: {
+                r: {
+                  angleLines: { color: '#ddd' },
+                  grid: { color: '#ddd' },
+                  pointLabels: { font: { size: 12 }, color: '#333' }, 
+                  ticks: {
+                    color: '#555',
+                    backdropColor: '#fff',
+                    stepSize: 1, /* 1'den 10'a kadar */
+                    font: { size: 10 } 
+                  },
+                  suggestedMin: 0,
+                  suggestedMax: 10
+                }
+              },
+              plugins: {
+                /* Efsaneyi gizlemek yerine "görünmez" yap (19. adımdan) */
+                legend: {
+                  display: true, 
+                  onClick: null, 
+                  labels: {
+                      font: {
+                          size: 1 
+                      },
+                      boxWidth: 0 
+                  }
+                }
+              }
+            }
+          });
+        }
+        
+        // Veriler
+        const data = {
+          duygular: ${JSON.stringify(duygular)},
+          memnuniyet: ${JSON.stringify(memnuniyet)},
+          ders: ${JSON.stringify(ders)},
+          beceri: ${JSON.stringify(beceri)},
+          labels: {
+            duygu: ${JSON.stringify(duygularNames)},
+            mem: ${JSON.stringify(memNames)},
+            ders: ${JSON.stringify(dersNames)},
+            beceri: ${JSON.stringify(beceriNames)}
+          }
+        };
+        
+        // Grafikleri çiz
+        window.onload = () => {
+          createRadarChart('duyguChart', data.labels.duygu, data.duygular, 'Duygu Puanları');
+          createRadarChart('memChart', data.labels.mem, data.memnuniyet, 'Memnuniyet Puanları');
+          createRadarChart('dersChart', data.labels.ders, data.ders, 'Derse İlgi Puanları');
+          createRadarChart('beceriChart', data.labels.beceri, data.beceri, 'Beceri Puanları');
+        };
+      <\/script>
+      
+    </body>
+    </html>
+  `;
+
+  // 4. İçeriği yeni pencereye yaz
+  chartWin.document.write(htmlContent);
+  chartWin.document.close();
+});
+
+// --- Tüm Formu Sıfırla Fonksiyonu (Onaylı) ---
+document.getElementById('resetForm').addEventListener('click', () => {
+    
+    // Onay penceresi
+    if (confirm("Tüm formu sıfırlamak istediğinizden emin misiniz? Girilen tüm veriler silinecektir.")) {
+        
+        // 1. Tüm metin alanlarını temizle
+        document.getElementById('name').value = '';
+        document.getElementById('class').value = '';
+        document.getElementById('goal').value = '';
+        document.getElementById('eylem1').value = '';
+        document.getElementById('eylem2').value = '';
+        document.getElementById('eylem3').value = '';
+
+        // 2. Tüm kaydırıcıları temizle (mevcut reset fonksiyonlarını çağırarak)
+        sliders.forEach(resetSlider);
+        memSliders.forEach(resetSlider);
+        dersSliders.forEach(resetSlider);
+        beceriSliders.forEach(resetSlider);
+    }
+    // Kullanıcı "İptal" derse hiçbir şey yapma
+});
+
+</script>
+    
+</body>
+</html>
